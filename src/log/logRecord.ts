@@ -12,4 +12,11 @@ export class LogRecord {
     toString() {
         return `${this.key}:${this.value}`;
     }
+
+    static fromString(str: string): undefined | LogRecord {
+        const withoutSemicolon = str.slice(0, -1);
+        const [key, value] = withoutSemicolon.split(":");
+        if (!key || !value) return undefined;
+        return new LogRecord(key, value);
+    }
 }
