@@ -17,4 +17,14 @@ describe('IndexedLog Simple', () => {
         log.write("key1", "value5");
         expect(log.read("key1")?.value).toBe("value5");
     });
+    test('IndexedLog dump returns only the most recent records', () => {
+        const log = new IndexedLog();
+        log.write("key1", "value1");
+        log.write("key1", "value2");
+        log.write("key1", "value3");
+        log.write("key1", "value4");
+        log.write("key1", "value5");
+        log.write("key2", "value1");
+        expect(log.dumpIndexLog().length).toBe(2);
+    });
 });

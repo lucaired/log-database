@@ -35,11 +35,22 @@ export class IndexedLog extends Log {
     }
 
     read(key: LogRecord['key']): LogRecord | undefined {
-        const { start, length } = this.index.read(key);
+        // the entry can be undefined, we can only destructure if we are sure it's not undefined
+        const { start, length } = this.index.read(key) ?? {};
         if (start === undefined || length === undefined) return undefined;
         const recordDump = this.dump();
         const maxLength = Math.min(recordDump.length, start + length + 1);
         const record = recordDump.slice(start, maxLength);
         return LogRecord.fromString(record);
     }
-}
+
+    /**
+     * For compaction, we need to get all the keys from the log
+     * and then return all the records from the log. This will
+     * yield only the most-recent records, because the index is updated with
+     * every write operation.
+     */
+    dumpIndexLog(): Array<LogRecord> {
+        return this.index.keys.map(this.read.bind(this)).filter((record): record is LogRecord => record !== undefined);
+    }
+}   
